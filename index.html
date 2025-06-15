@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple URL Shortener</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f7f7f7;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      max-width: 400px;
+    }
+    #output {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🔗 Simple URL Shortener</h2>
+  <input id="longUrl" placeholder="Enter long URL">
+  <input id="customCode" placeholder="Enter custom short name">
+  <button onclick="shorten()">Create Short Link</button>
+
+  <div id="output"></div>
+
+  <script>
+    // Use localStorage to persist links (just in browser)
+    const links = JSON.parse(localStorage.getItem("shortLinks") || "{}");
+
+    // Handle redirection
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("go");
+    if (code && links[code]) {
+      window.location.href = links[code];
+    }
+
+    function shorten() {
+      const longUrl = document.getElementById("longUrl").value.trim();
+      const customCode = document.getElementById("customCode").value.trim();
+
+      if (!longUrl || !customCode) {
+        alert("Please fill in both fields.");
+        return;
+      }
+
+      if (links[customCode]) {
+        alert("That short name is already taken.");
+        return;
+      }
+
+      links[customCode] = longUrl;
+      localStorage.setItem("shortLinks", JSON.stringify(links));
+
+      const base = window.location.origin + window.location.pathname;
+      const shortUrl = `${base}?go=${customCode}`;
+
+      document.getElementById("output").innerHTML = `
+        <p>✅ Short link created:</p>
+        <a href="${shortUrl}" target="_blank">${shortUrl}</a><br>
+        <small>(goes to: ${longUrl})</small>
+      `;
+    }
+  </script>
+
+</body>
+</html>
